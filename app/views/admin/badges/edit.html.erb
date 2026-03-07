@@ -1,0 +1,33 @@
+<div class="flex items-center gap-3 mb-6">
+  <%= link_to "← Badges", admin_badges_path, class: "text-slate-400 hover:text-slate-600 text-sm" %>
+</div>
+<div class="max-w-lg">
+  <h1 class="page-title">Edit Badge</h1>
+  <div class="card mt-4">
+    <%= form_with model: [:admin, @badge] do |f| %>
+      <% if @badge.errors.any? %>
+        <div class="error-box"><% @badge.errors.full_messages.each do |m| %><p>• <%= m %></p><% end %></div>
+      <% end %>
+      <div class="form-group">
+        <%= f.label :icon, "Icon (emoji)", class: "form-label" %><%= f.text_field :icon, class: "form-input" %>
+      </div>
+      <div class="form-group">
+        <%= f.label :name, class: "form-label" %><%= f.text_field :name, class: "form-input" %>
+      </div>
+      <div class="form-group">
+        <%= f.label :description, class: "form-label" %><%= f.text_field :description, class: "form-input" %>
+      </div>
+      <div class="form-group">
+        <%= f.label :badge_type, "Type", class: "form-label" %>
+        <%= f.select :badge_type, [['Finds','finds'],['Hidden','hidden'],['Points','points'],['Manual (admin-awarded)','manual']], {}, { class: "form-input" } %>
+      </div>
+      <div class="form-group">
+        <%= f.label :threshold, class: "form-label" %><%= f.number_field :threshold, class: "form-input" %>
+      </div>
+      <div class="flex gap-3 mt-6">
+        <%= f.submit "Save Changes", class: "btn-primary" %>
+        <%= link_to "Cancel", admin_badges_path, class: "btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

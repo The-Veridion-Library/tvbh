@@ -3,6 +3,7 @@ Badge.find_or_create_by!(name: 'First Find') do |b|
   b.icon        = '📖'
   b.threshold   = 1
   b.badge_type  = 'finds'
+  b.seeded      = true
 end
 
 Badge.find_or_create_by!(name: 'Book Worm') do |b|
@@ -10,6 +11,7 @@ Badge.find_or_create_by!(name: 'Book Worm') do |b|
   b.icon        = '🐛'
   b.threshold   = 10
   b.badge_type  = 'finds'
+  b.seeded      = true
 end
 
 Badge.find_or_create_by!(name: 'Librarian') do |b|
@@ -17,6 +19,7 @@ Badge.find_or_create_by!(name: 'Librarian') do |b|
   b.icon        = '📚'
   b.threshold   = 5
   b.badge_type  = 'hidden'
+  b.seeded      = true
 end
 
 Badge.find_or_create_by!(name: 'Centurion') do |b|
@@ -24,4 +27,5 @@ Badge.find_or_create_by!(name: 'Centurion') do |b|
   b.icon        = '🏆'
   b.threshold   = 100
   b.badge_type  = 'points'
+  b.seeded      = true
 end

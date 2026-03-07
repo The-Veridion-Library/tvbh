@@ -2,7 +2,9 @@ Rails.application.routes.draw do
   devise_for :users
   root "home#index"
 
-  resources :books,       only: [:index, :new, :create, :show]
+  resources :books,       only: [:index, :new, :create, :show] do
+    member { post :report }
+  end
   resources :locations,   only: [:index, :new, :create]
   resources :labels,      only: [:index, :new, :create, :show, :edit, :update]
   resources :finds,       only: [:index, :new, :create]
@@ -25,9 +27,20 @@ Rails.application.routes.draw do
   namespace :admin do
     root to: 'dashboard#index'
     resources :users,     only: [:index, :show, :edit, :update, :destroy]
-    resources :books,     only: [:index, :show, :edit, :update, :destroy]
+    resources :books,     only: [:index, :show, :edit, :update, :destroy] do
+      member do
+        patch :approve
+        patch :reject
+        patch :flag
+        patch :unflag
+      end
+    end
     resources :labels,    only: [:index, :show, :update, :destroy]
-    resources :locations, only: [:index, :show, :edit, :update, :destroy]
-    resources :badges,    only: [:index, :new, :create, :edit, :update, :destroy]
+    resources :locations, only: [:index, :show, :edit, :update, :destroy] do
+      member { patch :set_status }
+    end
+    resources :badges,    only: [:index, :new, :create, :edit, :update, :destroy] do
+      resources :user_badges, only: [:create, :destroy]
+    end
   end
 end

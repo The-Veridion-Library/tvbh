@@ -1,6 +1,14 @@
 <div class="max-w-xl">
-  <h1 class="page-title">📍 Add a Location</h1>
-  <p class="page-subtitle">Where will hunters find this book?</p>
+  <h1 class="page-title">📍 Nominate a Location</h1>
+  <p class="page-subtitle">Know a great library or bookstore that should join the hunt? Let us know and we'll reach out to them.</p>
+
+  <div class="bg-indigo-50 border border-indigo-100 rounded-xl px-5 py-4 mb-6 text-sm text-indigo-800 flex gap-3">
+    <span class="text-xl">ℹ️</span>
+    <div>
+      <p class="font-semibold mb-0.5">How nominations work</p>
+      <p class="text-indigo-700">We'll contact the venue, confirm they're happy to participate, and add them as an official partner. You'll be able to see your nomination's status on this page.</p>
+    </div>
+  </div>
 
   <div class="card">
     <%= form_with model: @location do |f| %>
@@ -10,74 +18,85 @@
         </div>
       <% end %>
 
+      <h2 class="text-base font-semibold text-slate-800 mb-4">Venue Details</h2>
+
       <div class="form-group">
-        <%= f.label :name, "Location Name", class: "form-label" %>
-        <%= f.text_field :name, required: true, placeholder: "e.g. Barnes & Noble Hartford", class: "form-input" %>
+        <%= f.label :name, "Venue Name", class: "form-label" %>
+        <%= f.text_field :name, required: true, class: "form-input", placeholder: "e.g. Hartford Public Library" %>
       </div>
 
       <div class="form-group">
         <%= f.label :location_type, "Type", class: "form-label" %>
         <%= f.select :location_type,
-            [["Library", "library"], ["Book Store", "bookstore"], ["Café", "cafe"], ["Park", "park"], ["Other", "other"]],
+            [["📚 Library", "library"], ["🏪 Book Store", "bookstore"], ["☕ Café", "cafe"], ["🌳 Park", "park"], ["📍 Other", "other"]],
             { prompt: "Select type" }, { required: true, class: "form-input" } %>
       </div>
 
       <div class="form-group">
-        <%= f.label :address_line_1, "Address Line 1", class: "form-label" %>
-        <%= f.text_field :address_line_1, required: true, placeholder: "123 Main St", class: "form-input" %>
+        <%= f.label :website, "Website", class: "form-label" %>
+        <%= f.text_field :website, class: "form-input", placeholder: "https://..." %>
       </div>
 
-      <div class="form-group">
-        <%= f.label :address_line_2, "Address Line 2", class: "form-label" %>
-        <%= f.text_field :address_line_2, placeholder: "Suite 100, Floor 2, etc.", class: "form-input" %>
-      </div>
+      <div class="border-t border-slate-100 pt-5 mt-2">
+        <h2 class="text-base font-semibold text-slate-800 mb-4">Address</h2>
 
-      <div class="grid grid-cols-2 gap-4">
         <div class="form-group">
-          <%= f.label :city, class: "form-label" %>
-          <%= f.text_field :city, required: true, placeholder: "Hartford", class: "form-input" %>
+          <%= f.label :address_line_1, "Address Line 1", class: "form-label" %>
+          <%= f.text_field :address_line_1, required: true, class: "form-input", placeholder: "500 Main St" %>
         </div>
         <div class="form-group">
-          <%= f.label :state, class: "form-label" %>
-          <%= f.select :state, [
-            ["Alabama","AL"],["Alaska","AK"],["Arizona","AZ"],["Arkansas","AR"],
-            ["California","CA"],["Colorado","CO"],["Connecticut","CT"],["Delaware","DE"],
-            ["Florida","FL"],["Georgia","GA"],["Hawaii","HI"],["Idaho","ID"],
-            ["Illinois","IL"],["Indiana","IN"],["Iowa","IA"],["Kansas","KS"],
-            ["Kentucky","KY"],["Louisiana","LA"],["Maine","ME"],["Maryland","MD"],
-            ["Massachusetts","MA"],["Michigan","MI"],["Minnesota","MN"],["Mississippi","MS"],
-            ["Missouri","MO"],["Montana","MT"],["Nebraska","NE"],["Nevada","NV"],
-            ["New Hampshire","NH"],["New Jersey","NJ"],["New Mexico","NM"],["New York","NY"],
-            ["North Carolina","NC"],["North Dakota","ND"],["Ohio","OH"],["Oklahoma","OK"],
-            ["Oregon","OR"],["Pennsylvania","PA"],["Rhode Island","RI"],["South Carolina","SC"],
-            ["South Dakota","SD"],["Tennessee","TN"],["Texas","TX"],["Utah","UT"],
-            ["Vermont","VT"],["Virginia","VA"],["Washington","WA"],["West Virginia","WV"],
-            ["Wisconsin","WI"],["Wyoming","WY"]
-          ], { prompt: "State" }, { required: true, class: "form-input" } %>
+          <%= f.label :address_line_2, "Address Line 2", class: "form-label" %>
+          <%= f.text_field :address_line_2, class: "form-input", placeholder: "Suite, Floor, etc." %>
         </div>
-      </div>
-
-      <div class="form-group">
-        <%= f.label :zip_code, "ZIP Code", class: "form-label" %>
-        <%= f.text_field :zip_code, placeholder: "06101", class: "form-input" %>
-      </div>
-
-      <div class="border-t border-slate-100 pt-4 mt-2">
-        <p class="text-slate-500 text-sm mb-3"><em>Coordinates are filled automatically from the address. Override manually if needed.</em></p>
         <div class="grid grid-cols-2 gap-4">
           <div class="form-group">
-            <%= f.label :latitude, class: "form-label" %>
-            <%= f.number_field :latitude, step: :any, placeholder: "Auto-filled", class: "form-input" %>
+            <%= f.label :city, class: "form-label" %><%= f.text_field :city, required: true, class: "form-input" %>
           </div>
           <div class="form-group">
-            <%= f.label :longitude, class: "form-label" %>
-            <%= f.number_field :longitude, step: :any, placeholder: "Auto-filled", class: "form-input" %>
+            <%= f.label :state, class: "form-label" %>
+            <%= f.select :state, [
+              ["Alabama","AL"],["Alaska","AK"],["Arizona","AZ"],["Arkansas","AR"],
+              ["California","CA"],["Colorado","CO"],["Connecticut","CT"],["Delaware","DE"],
+              ["Florida","FL"],["Georgia","GA"],["Hawaii","HI"],["Idaho","ID"],
+              ["Illinois","IL"],["Indiana","IN"],["Iowa","IA"],["Kansas","KS"],
+              ["Kentucky","KY"],["Louisiana","LA"],["Maine","ME"],["Maryland","MD"],
+              ["Massachusetts","MA"],["Michigan","MI"],["Minnesota","MN"],["Mississippi","MS"],
+              ["Missouri","MO"],["Montana","MT"],["Nebraska","NE"],["Nevada","NV"],
+              ["New Hampshire","NH"],["New Jersey","NJ"],["New Mexico","NM"],["New York","NY"],
+              ["North Carolina","NC"],["North Dakota","ND"],["Ohio","OH"],["Oklahoma","OK"],
+              ["Oregon","OR"],["Pennsylvania","PA"],["Rhode Island","RI"],["South Carolina","SC"],
+              ["South Dakota","SD"],["Tennessee","TN"],["Texas","TX"],["Utah","UT"],
+              ["Vermont","VT"],["Virginia","VA"],["Washington","WA"],["West Virginia","WV"],
+              ["Wisconsin","WI"],["Wyoming","WY"]
+            ], { prompt: "State" }, { required: true, class: "form-input" } %>
           </div>
+        </div>
+        <div class="form-group">
+          <%= f.label :zip_code, "ZIP Code", class: "form-label" %>
+          <%= f.text_field :zip_code, class: "form-input", placeholder: "06101" %>
         </div>
       </div>
 
-      <div class="mt-6">
-        <%= f.submit "Add Location", class: "btn-primary" %>
+      <div class="border-t border-slate-100 pt-5 mt-2">
+        <h2 class="text-base font-semibold text-slate-800 mb-1">Contact Hint (Optional)</h2>
+        <p class="text-slate-500 text-sm mb-4">Do you know who to speak to there? This helps us reach the right person faster.</p>
+        <div class="form-group">
+          <%= f.label :contact_name, "Contact Name / Note", class: "form-label" %>
+          <%= f.text_field :contact_name, class: "form-input", placeholder: "e.g. Ask for Sarah at the reference desk" %>
+        </div>
+      </div>
+
+      <div class="border-t border-slate-100 pt-5 mt-2">
+        <h2 class="text-base font-semibold text-slate-800 mb-1">Why This Spot?</h2>
+        <div class="form-group">
+          <%= f.text_area :nomination_notes, rows: 3, class: "form-input",
+              placeholder: "e.g. Great community hub, huge book section, staff are very friendly and supportive of local initiatives." %>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4 mt-6 pt-5 border-t border-slate-100">
+        <%= f.submit "Submit Nomination", class: "btn-primary" %>
+        <%= link_to "Cancel", locations_path, class: "btn-secondary" %>
       </div>
     <% end %>
   </div>

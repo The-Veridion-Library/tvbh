@@ -1,20 +1,28 @@
-<div class="max-w-xl">
-  <h1 class="page-title">📚 Hide a Book</h1>
-  <p class="page-subtitle">Add your book details and choose where to hide it.</p>
+<div class="max-w-2xl">
+  <h1 class="page-title">📚 Submit a Book</h1>
+  <p class="page-subtitle">Tell us about the book you'd like to share. Our team will review it before you can print a label and hide it.</p>
+
+  <div class="bg-indigo-50 border border-indigo-100 rounded-xl px-5 py-4 mb-6 text-sm text-indigo-800 flex gap-3">
+    <span class="text-xl">ℹ️</span>
+    <div>
+      <p class="font-semibold mb-0.5">How it works</p>
+      <p class="text-indigo-700">Submit your book → We review it (usually within 24 hrs) → Once approved, you'll be able to print your QR label and hide it at a partner location.</p>
+    </div>
+  </div>
 
   <div class="card">
     <%= form_with model: @book do |f| %>
       <% if @book.errors.any? %>
         <div class="error-box">
-          <% @book.errors.full_messages.each do |msg| %>
-            <p>• <%= msg %></p>
-          <% end %>
+          <% @book.errors.full_messages.each do |msg| %><p>• <%= msg %></p><% end %>
         </div>
       <% end %>
 
+      <h2 class="text-base font-semibold text-slate-800 mb-4">Book Details</h2>
+
       <div class="form-group">
         <%= f.label :title, class: "form-label" %>
-        <%= f.text_field :title, required: true, class: "form-input", placeholder: "e.g. The Hitchhiker's Guide" %>
+        <%= f.text_field :title, required: true, class: "form-input", placeholder: "e.g. The Hitchhiker's Guide to the Galaxy" %>
       </div>
 
       <div class="form-group">
@@ -22,26 +30,67 @@
         <%= f.text_field :author, required: true, class: "form-input", placeholder: "e.g. Douglas Adams" %>
       </div>
 
-      <div class="form-group">
-        <%= f.label :isbn, "ISBN", class: "form-label" %>
-        <%= f.text_field :isbn, class: "form-input", placeholder: "Optional" %>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="form-group">
+          <%= f.label :isbn, "ISBN", class: "form-label" %>
+          <%= f.text_field :isbn, class: "form-input", placeholder: "Optional" %>
+        </div>
+        <div class="form-group">
+          <%= f.label :book_condition, "Condition", class: "form-label" %>
+          <%= f.select :book_condition,
+              [["Like New 🌟", "like_new"], ["Good 👍", "good"], ["Acceptable 👌", "acceptable"], ["Poor 🫤", "poor"]],
+              { prompt: "Select condition" }, { required: true, class: "form-input" } %>
+        </div>
       </div>
 
-      <div class="form-group">
-        <%= f.label :cover_image, "Cover Image URL", class: "form-label" %>
-        <%= f.text_field :cover_image, class: "form-input", placeholder: "https://..." %>
+      <div class="border-t border-slate-100 pt-5 mt-2">
+        <h2 class="text-base font-semibold text-slate-800 mb-1">Cover Photos</h2>
+        <p class="text-slate-500 text-sm mb-4">Upload or link photos of the front and back cover so we can verify the book's condition.</p>
+
+        <div class="form-group">
+          <%= f.label :front_cover, "Front Cover Photo URL", class: "form-label" %>
+          <%= f.text_field :front_cover, class: "form-input", placeholder: "https://..." %>
+        </div>
+        <div class="form-group">
+          <%= f.label :back_cover, "Back Cover Photo URL", class: "form-label" %>
+          <%= f.text_field :back_cover, class: "form-input", placeholder: "https://..." %>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="location_id" class="form-label">Location</label>
-        <%= select_tag :location_id,
-            options_from_collection_for_select(@locations, :id, :name),
-            prompt: "Select a location", required: true, class: "form-input" %>
+      <div class="border-t border-slate-100 pt-5 mt-2">
+        <h2 class="text-base font-semibold text-slate-800 mb-1">Any Notes?</h2>
+        <p class="text-slate-500 text-sm mb-4">Mention anything we should know — strong smells (mildew, perfume), writing inside, water damage, etc.</p>
+        <div class="form-group">
+          <%= f.text_area :submission_notes, rows: 3, class: "form-input",
+              placeholder: "e.g. Slight musty smell on pages, pencil notes in margins on chapter 3, otherwise great condition." %>
+        </div>
       </div>
 
-      <div class="flex items-center gap-3 mt-6">
-        <%= f.submit "Hide this Book!", class: "btn-primary" %>
-        <%= link_to "Add a new location first →", new_location_path, class: "text-indigo-600 hover:underline text-sm" %>
+      <div class="border-t border-slate-100 pt-5 mt-2">
+        <h2 class="text-base font-semibold text-slate-800 mb-1">Preferred Hide Location</h2>
+        <p class="text-slate-500 text-sm mb-4">Where would you like to leave this book? This is a preference — our team will confirm during review. Only partner locations are available.</p>
+
+        <% if @locations.any? %>
+          <div class="form-group">
+            <%= f.label :preferred_location_id, "Location", class: "form-label" %>
+            <%= f.collection_select :preferred_location_id, @locations, :id, :name,
+                { prompt: "Select a partner location" }, { class: "form-input" } %>
+          </div>
+        <% else %>
+          <div class="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 text-sm text-amber-700">
+            No partner locations are available yet. You can still submit your book — we'll work out the location during review.
+          </div>
+        <% end %>
+
+        <p class="text-sm text-slate-400 mt-3">
+          Don't see your local library or bookstore?
+          <%= link_to "Nominate a location →", new_location_path, class: "text-indigo-600 hover:underline" %>
+        </p>
+      </div>
+
+      <div class="flex items-center gap-4 mt-6 pt-5 border-t border-slate-100">
+        <%= f.submit "Submit for Review", class: "btn-primary" %>
+        <%= link_to "Cancel", books_path, class: "btn-secondary" %>
       </div>
     <% end %>
   </div>

@@ -1,0 +1,30 @@
+<div class="flex items-center gap-3 mb-6">
+  <%= link_to "← Labels", admin_labels_path, class: "text-slate-400 hover:text-slate-600 text-sm" %>
+</div>
+<div class="max-w-lg">
+  <h1 class="page-title">Label #<%= @label.id %></h1>
+  <div class="card mt-4 mb-4">
+    <div class="grid grid-cols-2 gap-4 text-sm">
+      <div><span class="text-slate-500">Book</span><p class="font-medium"><%= link_to @label.book.title, admin_book_path(@label.book), class: "text-indigo-600 hover:underline" %></p></div>
+      <div><span class="text-slate-500">Location</span><p class="font-medium"><%= @label.location.name %></p></div>
+      <div><span class="text-slate-500">Owner</span><p class="font-medium"><%= link_to @label.user.username, admin_user_path(@label.user), class: "text-indigo-600 hover:underline" %></p></div>
+      <div><span class="text-slate-500">QR Code</span><p class="font-mono text-xs text-slate-600"><%= @label.qr_code %></p></div>
+      <div><span class="text-slate-500">Created</span><p class="font-medium"><%= @label.created_at.strftime("%b %d, %Y") %></p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="text-base font-semibold text-slate-800 mb-4">Override Status</h2>
+    <%= form_with model: [:admin, @label] do |f| %>
+      <div class="form-group">
+        <%= f.label :status, class: "form-label" %>
+        <%= f.select :status, Label::STATUSES.map { |s| [s.capitalize, s] }, {}, { class: "form-input" } %>
+      </div>
+      <div class="flex gap-3 mt-4">
+        <%= f.submit "Update Status", class: "btn-primary" %>
+        <%= button_to "Delete Label", admin_label_path(@label), method: :delete,
+            class: "btn-danger", data: { confirm: "Delete this label?" } %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,9 +1,22 @@
 <div class="flex items-center justify-between mb-6">
-  <h1 class="page-title">📚 Books</h1>
-  <div class="flex gap-2">
-    <%= link_to "All", admin_books_path, class: "btn-secondary text-sm py-1.5 #{params[:status].blank? ? 'bg-slate-200' : ''}" %>
-    <%= link_to "Hidden", admin_books_path(status: 'hidden'), class: "btn-secondary text-sm py-1.5 #{params[:status] == 'hidden' ? 'bg-slate-200' : ''}" %>
-    <%= link_to "Found", admin_books_path(status: 'found'), class: "btn-secondary text-sm py-1.5 #{params[:status] == 'found' ? 'bg-slate-200' : ''}" %>
+  <div>
+    <h1 class="page-title">📚 Books</h1>
+    <div class="flex gap-3 mt-1 text-sm">
+      <% if @pending_count > 0 %>
+        <span class="text-amber-600 font-medium">⏳ <%= @pending_count %> pending review</span>
+      <% end %>
+      <% if @flagged_count > 0 %>
+        <span class="text-red-500 font-medium">🚩 <%= @flagged_count %> flagged</span>
+      <% end %>
+    </div>
+  </div>
+  <div class="flex gap-2 flex-wrap">
+    <%= link_to "All", admin_books_path, class: "btn-secondary text-sm py-1.5 #{params[:status].blank? && params[:flagged].blank? ? 'bg-slate-200' : ''}" %>
+    <%= link_to "⏳ Pending#{@pending_count > 0 ? " (#{@pending_count})" : ''}", admin_books_path(status: 'pending_review'),
+        class: "btn-secondary text-sm py-1.5 #{params[:status] == 'pending_review' ? 'bg-amber-100 border-amber-300 text-amber-700' : ''}" %>
+    <%= link_to "✅ Approved", admin_books_path(status: 'approved'), class: "btn-secondary text-sm py-1.5 #{params[:status] == 'approved' ? 'bg-slate-200' : ''}" %>
+    <%= link_to "❌ Rejected", admin_books_path(status: 'rejected'), class: "btn-secondary text-sm py-1.5 #{params[:status] == 'rejected' ? 'bg-slate-200' : ''}" %>
+    <%= link_to "🚩 Flagged", admin_books_path(flagged: 'true'), class: "btn-secondary text-sm py-1.5 #{params[:flagged] == 'true' ? 'bg-red-100 border-red-300 text-red-700' : ''}" %>
   </div>
 </div>
 
@@ -11,25 +24,38 @@
   <table class="w-full text-sm">
     <thead class="bg-slate-50 border-b border-slate-100">
       <tr>
-        <th class="text-left px-6 py-3 text-slate-500 font-medium">Title</th>
-        <th class="text-left px-6 py-3 text-slate-500 font-medium">Author</th>
-        <th class="text-left px-6 py-3 text-slate-500 font-medium">Hidden by</th>
-        <th class="text-left px-6 py-3 text-slate-500 font-medium">Status</th>
-        <th class="text-left px-6 py-3 text-slate-500 font-medium">Added</th>
-        <th class="px-6 py-3"></th>
+        <th class="text-left px-5 py-3 text-slate-500 font-medium">Book</th>
+        <th class="text-left px-5 py-3 text-slate-500 font-medium">Submitted by</th>
+        <th class="text-left px-5 py-3 text-slate-500 font-medium">Condition</th>
+        <th class="text-left px-5 py-3 text-slate-500 font-medium">Status</th>
+        <th class="text-left px-5 py-3 text-slate-500 font-medium">Date</th>
+        <th class="px-5 py-3"></th>
       </tr>
     </thead>
     <tbody class="divide-y divide-slate-100">
       <% @books.each do |book| %>
-        <tr class="hover:bg-slate-50">
-          <td class="px-6 py-3 font-medium text-slate-800 max-w-[180px] truncate"><%= book.title %></td>
-          <td class="px-6 py-3 text-slate-600"><%= book.author %></td>
-          <td class="px-6 py-3 text-slate-500"><%= link_to book.user.username, admin_user_path(book.user), class: "hover:text-indigo-600" %></td>
-          <td class="px-6 py-3"><span class="badge-pill <%= book.status == 'hidden' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' %>"><%= book.status %></span></td>
-          <td class="px-6 py-3 text-slate-400"><%= book.created_at.strftime("%b %d, %Y") %></td>
-          <td class="px-6 py-3 text-right flex gap-2 justify-end">
-            <%= link_to "View", admin_book_path(book), class: "text-indigo-600 hover:underline" %>
-            <%= button_to "Delete", admin_book_path(book), method: :delete, class: "text-red-500 hover:underline bg-transparent border-0 cursor-pointer p-0 text-sm", data: { confirm: "Delete this book?" } %>
+        <tr class="hover:bg-slate-50 <%= 'bg-amber-50' if book.pending? %> <%= 'bg-red-50' if book.flagged? %>">
+          <td class="px-5 py-3">
+            <p class="font-medium text-slate-800 max-w-[160px] truncate">
+              <%= book.title %>
+              <% if book.flagged? %><span class="ml-1 text-red-500 text-xs">🚩</span><% end %>
+            </p>
+            <p class="text-slate-400 text-xs"><%= book.author %></p>
+          </td>
+          <td class="px-5 py-3 text-slate-600">
+            <%= link_to book.user.username, admin_user_path(book.user), class: "hover:text-indigo-600" %>
+          </td>
+          <td class="px-5 py-3 text-slate-500"><%= book.condition_label.presence || '—' %></td>
+          <td class="px-5 py-3">
+            <span class="badge-pill <%= case book.submission_status
+              when 'pending_review' then 'bg-amber-100 text-amber-700'
+              when 'approved'       then 'bg-emerald-100 text-emerald-700'
+              when 'rejected'       then 'bg-red-100 text-red-700'
+              end %>"><%= book.submission_status&.humanize || 'Unknown' %></span>
+          </td>
+          <td class="px-5 py-3 text-slate-400"><%= book.created_at.strftime("%b %d") %></td>
+          <td class="px-5 py-3 text-right">
+            <%= link_to "Review →", admin_book_path(book), class: "text-indigo-600 hover:underline font-medium" %>
           </td>
         </tr>
       <% end %>

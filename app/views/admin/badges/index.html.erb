@@ -3,20 +3,62 @@
   <%= link_to "New Badge", new_admin_badge_path, class: "btn-primary" %>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
   <% @badges.each do |badge| %>
-    <div class="card flex items-start justify-between gap-3">
-      <div class="flex items-start gap-3">
-        <span class="text-3xl"><%= badge.icon %></span>
-        <div>
-          <h3 class="font-semibold text-slate-800"><%= badge.name %></h3>
-          <p class="text-slate-500 text-sm"><%= badge.description %></p>
-          <p class="text-slate-400 text-xs mt-1"><%= badge.badge_type %> · threshold: <%= badge.threshold %></p>
+    <div class="card">
+      <div class="flex items-start justify-between gap-3 mb-4">
+        <div class="flex items-start gap-3">
+          <span class="text-4xl"><%= badge.icon %></span>
+          <div>
+            <h3 class="font-bold text-slate-800"><%= badge.name %></h3>
+            <p class="text-slate-500 text-sm"><%= badge.description %></p>
+            <div class="flex gap-2 mt-1">
+              <span class="badge-pill bg-slate-100 text-slate-600"><%= badge.badge_type %></span>
+              <% unless badge.manual? %>
+                <span class="badge-pill bg-indigo-50 text-indigo-600">threshold: <%= badge.threshold %></span>
+              <% end %>
+              <% if badge.seeded? %>
+                <span class="badge-pill bg-amber-50 text-amber-600">seeded</span>
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1 flex-shrink-0 text-right">
+          <%= link_to "Edit", edit_admin_badge_path(badge), class: "text-indigo-600 text-sm hover:underline" %>
+          <% if badge.deletable? %>
+            <%= button_to "Delete", admin_badge_path(badge), method: :delete, class: "text-red-500 text-sm hover:underline bg-transparent border-0 cursor-pointer p-0", data: { confirm: "Delete badge?" } %>
+          <% end %>
         </div>
       </div>
-      <div class="flex flex-col gap-1 flex-shrink-0">
-        <%= link_to "Edit", edit_admin_badge_path(badge), class: "text-indigo-600 text-sm hover:underline" %>
-        <%= button_to "Del", admin_badge_path(badge), method: :delete, class: "text-red-500 text-sm hover:underline bg-transparent border-0 cursor-pointer p-0", data: { confirm: "Delete badge?" } %>
+
+      <!-- Holders -->
+      <div class="border-t border-slate-100 pt-3">
+        <p class="text-xs text-slate-500 font-medium mb-2"><%= badge.users.count %> holder<%= badge.users.count == 1 ? '' : 's' %></p>
+        <% if badge.users.any? %>
+          <div class="flex flex-wrap gap-1 mb-3">
+            <% badge.users.first(6).each do |user| %>
+              <div class="flex items-center gap-1 bg-slate-50 rounded-full px-2 py-0.5 text-xs">
+                <%= link_to user.username, admin_user_path(user), class: "text-slate-600 hover:text-indigo-600" %>
+                <%= button_to "×", admin_badge_user_badge_path(badge, UserBadge.find_by(user: user, badge: badge)),
+                    method: :delete,
+                    class: "text-red-400 hover:text-red-600 bg-transparent border-0 cursor-pointer p-0 ml-0.5",
+                    data: { confirm: "Revoke this badge from #{user.username}?" } %>
+              </div>
+            <% end %>
+            <% if badge.users.count > 6 %>
+              <span class="text-xs text-slate-400 px-2 py-0.5">+<%= badge.users.count - 6 %> more</span>
+            <% end %>
+          </div>
+        <% end %>
+
+        <!-- Award form -->
+        <%= form_with url: admin_badge_user_badges_path(badge), method: :post, class: "flex gap-2 mt-2" do |f| %>
+          <%= select_tag :user_id,
+              options_from_collection_for_select(User.order(:username), :id, :username),
+              prompt: "Award to user...",
+              class: "form-input text-xs py-1 flex-1" %>
+          <%= f.submit "Award", class: "btn-success text-xs py-1 px-3" %>
+        <% end %>
       </div>
     </div>
   <% end %>

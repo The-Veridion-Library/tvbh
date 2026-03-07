@@ -10,7 +10,7 @@ class Admin::LabelsController < Admin::BaseController
 
   def update
     if @label.update(label_params)
-      redirect_to admin_label_path(@label), notice: "Label updated."
+      redirect_to admin_label_path(@label), notice: "Label status updated."
     else
       render :show, status: :unprocessable_entity
     end

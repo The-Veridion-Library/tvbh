@@ -1,0 +1,76 @@
+<div class="flex items-center gap-3 mb-6">
+  <%= link_to "← Books", admin_books_path, class: "text-slate-400 hover:text-slate-600 text-sm" %>
+</div>
+
+<div class="grid grid-cols-3 gap-6">
+  <div class="col-span-1 space-y-4">
+    <div class="card">
+      <% if @book.cover_image.present? %>
+        <img src="<%= @book.cover_image %>" class="w-full h-40 object-cover rounded-xl mb-4">
+      <% else %>
+        <div class="w-full h-32 bg-slate-100 rounded-xl mb-4 flex items-center justify-center text-4xl">📖</div>
+      <% end %>
+      <h1 class="text-lg font-bold text-slate-900"><%= @book.title %></h1>
+      <p class="text-slate-500 text-sm">by <%= @book.author %></p>
+      <div class="mt-3 space-y-2 text-sm pt-3 border-t border-slate-100">
+        <div class="flex justify-between"><span class="text-slate-500">Status</span>
+          <span class="badge-pill <%= @book.status == 'hidden' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' %>"><%= @book.status %></span>
+        </div>
+        <div class="flex justify-between"><span class="text-slate-500">Flagged</span>
+          <span class="badge-pill <%= @book.flagged? ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-500' %>"><%= @book.flagged? ? '🚩 Yes' : 'No' %></span>
+        </div>
+        <div class="flex justify-between"><span class="text-slate-500">Hidden by</span>
+          <%= link_to @book.user.username, admin_user_path(@book.user), class: "text-indigo-600 hover:underline font-medium" %>
+        </div>
+        <div class="flex justify-between"><span class="text-slate-500">Labels</span> <span class="font-medium"><%= @labels.count %></span></div>
+        <div class="flex justify-between"><span class="text-slate-500">Finds</span> <span class="font-medium"><%= @finds.count %></span></div>
+      </div>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <%= link_to "Edit", edit_admin_book_path(@book), class: "btn-secondary text-sm py-1.5 px-3" %>
+        <% if @book.flagged? %>
+          <%= button_to "✓ Clear Flag", unflag_admin_book_path(@book), method: :patch, class: "btn-success text-sm py-1.5 px-3" %>
+        <% else %>
+          <%= button_to "🚩 Flag", flag_admin_book_path(@book), method: :patch, class: "btn-secondary text-sm py-1.5 px-3" %>
+        <% end %>
+        <%= button_to "Delete", admin_book_path(@book), method: :delete, class: "btn-danger text-sm py-1.5 px-3", data: { confirm: "Delete this book?" } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-span-2 space-y-4">
+    <div class="card p-0 overflow-hidden">
+      <div class="px-6 py-3 border-b border-slate-100 font-semibold text-slate-800">Labels (<%= @labels.count %>)</div>
+      <% if @labels.any? %>
+        <div class="divide-y divide-slate-100">
+          <% @labels.each do |label| %>
+            <div class="px-6 py-3 flex justify-between text-sm">
+              <span class="text-slate-600"><%= label.location.name %></span>
+              <div class="flex items-center gap-3">
+                <span class="badge-pill <%= label.status == 'placed' ? 'bg-emerald-100 text-emerald-700' : label.status == 'invalidated' ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-600' %>"><%= label.status %></span>
+                <%= link_to "Manage", admin_label_path(label), class: "text-indigo-600 hover:underline" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="px-6 py-4 text-slate-400 text-sm">No labels.</p>
+      <% end %>
+    </div>
+
+    <div class="card p-0 overflow-hidden">
+      <div class="px-6 py-3 border-b border-slate-100 font-semibold text-slate-800">Finds (<%= @finds.count %>)</div>
+      <% if @finds.any? %>
+        <div class="divide-y divide-slate-100">
+          <% @finds.each do |find| %>
+            <div class="px-6 py-3 flex justify-between text-sm">
+              <%= link_to find.user.username, admin_user_path(find.user), class: "font-medium text-slate-700 hover:text-indigo-600" %>
+              <span class="text-slate-400"><%= find.found_at.strftime("%b %d, %Y") %> · +<%= find.points_awarded %> pts</span>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="px-6 py-4 text-slate-400 text-sm">No finds yet.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

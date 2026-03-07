@@ -2,7 +2,7 @@ class Admin::BadgesController < Admin::BaseController
   before_action :set_badge, only: [:edit, :update, :destroy]
 
   def index
-    @badges = Badge.order(:name)
+    @badges = Badge.order(:badge_type, :name)
   end
 
   def new
@@ -29,8 +29,12 @@ class Admin::BadgesController < Admin::BaseController
   end
 
   def destroy
-    @badge.destroy
-    redirect_to admin_badges_path, notice: "Badge deleted."
+    if @badge.deletable?
+      @badge.destroy
+      redirect_to admin_badges_path, notice: "Badge deleted."
+    else
+      redirect_to admin_badges_path, alert: "Seeded badges cannot be deleted."
+    end
   end
 
   private

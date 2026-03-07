@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_06_215236) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_07_023730) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -20,16 +20,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_215236) do
     t.text "description"
     t.string "icon"
     t.string "name"
+    t.boolean "seeded"
     t.integer "threshold"
     t.datetime "updated_at", null: false
   end
 
   create_table "books", force: :cascade do |t|
     t.string "author"
+    t.string "back_cover"
+    t.string "book_condition"
     t.string "cover_image"
     t.datetime "created_at", null: false
+    t.boolean "flagged"
+    t.string "front_cover"
     t.string "isbn"
+    t.integer "preferred_location_id"
+    t.text "rejection_reason"
     t.string "status"
+    t.text "submission_notes"
+    t.string "submission_status"
     t.string "title"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
@@ -76,13 +85,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_215236) do
     t.string "address_line_1"
     t.string "address_line_2"
     t.string "city"
+    t.string "contact_name"
     t.datetime "created_at", null: false
     t.decimal "latitude"
     t.string "location_type"
     t.decimal "longitude"
     t.string "name"
+    t.integer "nominated_by"
+    t.text "nomination_notes"
+    t.string "nomination_status"
     t.string "state"
     t.datetime "updated_at", null: false
+    t.boolean "verified"
+    t.datetime "verified_at"
+    t.integer "verified_by"
+    t.string "website"
     t.string "zip_code"
   end
 

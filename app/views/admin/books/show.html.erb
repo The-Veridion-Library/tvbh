@@ -1,0 +1,163 @@
+<div class="flex items-center gap-3 mb-6">
+  <%= link_to "← Books", admin_books_path, class: "text-slate-400 hover:text-slate-600 text-sm" %>
+</div>
+
+<div class="grid grid-cols-3 gap-6">
+
+  <%# ── Left: Submission Details ──────────────────────────────────────────── %>
+  <div class="col-span-1 space-y-4">
+
+    <%# Cover photos %>
+    <% if @book.front_cover.present? || @book.back_cover.present? %>
+      <div class="card p-3">
+        <p class="text-xs text-slate-500 font-medium uppercase tracking-wide mb-2">Cover Photos</p>
+        <div class="flex gap-2">
+          <% if @book.front_cover.present? %>
+            <div class="flex-1">
+              <p class="text-xs text-slate-400 mb-1">Front</p>
+              <img src="<%= @book.front_cover %>" class="w-full h-32 object-cover rounded-lg">
+            </div>
+          <% end %>
+          <% if @book.back_cover.present? %>
+            <div class="flex-1">
+              <p class="text-xs text-slate-400 mb-1">Back</p>
+              <img src="<%= @book.back_cover %>" class="w-full h-32 object-cover rounded-lg">
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <div class="card text-center text-slate-400 text-sm py-8">No photos submitted.</div>
+    <% end %>
+
+    <%# Book info %>
+    <div class="card">
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <h1 class="text-lg font-bold text-slate-900"><%= @book.title %></h1>
+          <p class="text-slate-500 text-sm">by <%= @book.author %></p>
+        </div>
+        <span class="badge-pill flex-shrink-0 <%= case @book.submission_status
+          when 'pending_review' then 'bg-amber-100 text-amber-700'
+          when 'approved'       then 'bg-emerald-100 text-emerald-700'
+          when 'rejected'       then 'bg-red-100 text-red-700'
+          end %>"><%= @book.submission_status.humanize %></span>
+      </div>
+
+      <div class="space-y-2 text-sm border-t border-slate-100 pt-3">
+        <% if @book.isbn.present? %>
+          <div class="flex justify-between"><span class="text-slate-500">ISBN</span><span class="font-medium"><%= @book.isbn %></span></div>
+        <% end %>
+        <div class="flex justify-between"><span class="text-slate-500">Condition</span><span class="font-medium"><%= @book.condition_label.presence || '—' %></span></div>
+        <div class="flex justify-between"><span class="text-slate-500">Submitted by</span>
+          <%= link_to @book.user.username, admin_user_path(@book.user), class: "font-medium text-indigo-600 hover:underline" %>
+        </div>
+        <div class="flex justify-between"><span class="text-slate-500">Flagged</span>
+          <span class="badge-pill <%= @book.flagged? ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-500' %>"><%= @book.flagged? ? '🚩 Yes' : 'No' %></span>
+        </div>
+        <% if @book.preferred_location.present? %>
+          <div class="flex justify-between"><span class="text-slate-500">Preferred location</span><span class="font-medium text-slate-700"><%= @book.preferred_location.name %></span></div>
+        <% end %>
+        <div class="flex justify-between"><span class="text-slate-500">Submitted</span><span class="text-slate-500"><%= @book.created_at.strftime("%b %d, %Y") %></span></div>
+      </div>
+
+      <% if @book.submission_notes.present? %>
+        <div class="mt-3 pt-3 border-t border-slate-100">
+          <p class="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Submission Notes</p>
+          <p class="text-slate-700 text-sm"><%= @book.submission_notes %></p>
+        </div>
+      <% end %>
+
+      <% if @book.rejection_reason.present? %>
+        <div class="mt-3 pt-3 border-t border-slate-100">
+          <p class="text-red-500 text-xs font-medium uppercase tracking-wide mb-1">Rejection Reason</p>
+          <p class="text-red-700 text-sm"><%= @book.rejection_reason %></p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── Right: Actions + History ────────────────────────────────────────────── %>
+  <div class="col-span-2 space-y-4">
+
+    <%# Review actions %>
+    <% if @book.pending? %>
+      <div class="card border-2 border-amber-200 bg-amber-50">
+        <h2 class="text-base font-semibold text-amber-800 mb-4">⏳ Review This Submission</h2>
+
+        <div class="flex gap-3 mb-5">
+          <%= button_to "✅ Approve", approve_admin_book_path(@book), method: :patch,
+              class: "btn-success flex-1 text-center",
+              data: { confirm: "Approve this book? A label will be created using the preferred location." } %>
+        </div>
+
+        <%= form_with url: reject_admin_book_path(@book), method: :patch do |f| %>
+          <div class="form-group">
+            <%= f.label :rejection_reason, "Rejection Reason", class: "form-label text-amber-800" %>
+            <%= f.text_area :rejection_reason, rows: 2, class: "form-input",
+                placeholder: "e.g. Book condition does not meet our guidelines. Please resubmit with a book in better condition." %>
+          </div>
+          <%= f.submit "❌ Reject with Reason", class: "btn-danger w-full mt-2" %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="card">
+        <h2 class="text-base font-semibold text-slate-800 mb-3">Actions</h2>
+        <div class="flex flex-wrap gap-2">
+          <% if @book.approved? %>
+            <%= button_to "❌ Reject", reject_admin_book_path(@book), method: :patch, class: "btn-danger text-sm py-1.5 px-3",
+                params: { rejection_reason: "Reversed by admin." }, data: { confirm: "Re-reject this book?" } %>
+          <% end %>
+          <% if @book.rejected? %>
+            <%= button_to "✅ Approve", approve_admin_book_path(@book), method: :patch, class: "btn-success text-sm py-1.5 px-3",
+                data: { confirm: "Approve this book?" } %>
+          <% end %>
+          <% if @book.flagged? %>
+            <%= button_to "Clear Flag", unflag_admin_book_path(@book), method: :patch, class: "btn-secondary text-sm py-1.5 px-3" %>
+          <% else %>
+            <%= button_to "🚩 Flag", flag_admin_book_path(@book), method: :patch, class: "btn-secondary text-sm py-1.5 px-3" %>
+          <% end %>
+          <%= link_to "Edit", edit_admin_book_path(@book), class: "btn-secondary text-sm py-1.5 px-3" %>
+          <%= button_to "Delete", admin_book_path(@book), method: :delete, class: "btn-danger text-sm py-1.5 px-3", data: { confirm: "Delete this book?" } %>
+        </div>
+      </div>
+    <% end %>
+
+    <%# Labels %>
+    <div class="card p-0 overflow-hidden">
+      <div class="px-5 py-3 border-b border-slate-100 font-semibold text-slate-800">Labels (<%= @labels.count %>)</div>
+      <% if @labels.any? %>
+        <div class="divide-y divide-slate-100">
+          <% @labels.each do |label| %>
+            <div class="px-5 py-3 flex justify-between text-sm items-center">
+              <span class="text-slate-700"><%= label.location.name %></span>
+              <div class="flex items-center gap-3">
+                <span class="badge-pill <%= label.status == 'placed' ? 'bg-emerald-100 text-emerald-700' : label.status == 'invalidated' ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-600' %>"><%= label.status %></span>
+                <%= link_to "Manage", admin_label_path(label), class: "text-indigo-600 hover:underline" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="px-5 py-4 text-slate-400 text-sm">No labels yet — will be created on approval.</p>
+      <% end %>
+    </div>
+
+    <%# Finds %>
+    <div class="card p-0 overflow-hidden">
+      <div class="px-5 py-3 border-b border-slate-100 font-semibold text-slate-800">Finds (<%= @finds.count %>)</div>
+      <% if @finds.any? %>
+        <div class="divide-y divide-slate-100">
+          <% @finds.each do |find| %>
+            <div class="px-5 py-3 flex justify-between text-sm">
+              <%= link_to find.user.username, admin_user_path(find.user), class: "font-medium text-slate-700 hover:text-indigo-600" %>
+              <span class="text-slate-400"><%= find.found_at.strftime("%b %d, %Y") %> · +<%= find.points_awarded %> pts</span>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="px-5 py-4 text-slate-400 text-sm">No finds yet.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,27 +1,56 @@
 <div class="flex items-center justify-between mb-6">
   <div>
     <h1 class="page-title">📚 Books</h1>
-    <p class="page-subtitle">All books in the hunt</p>
+    <p class="page-subtitle">All approved books in the hunt</p>
   </div>
-  <%= link_to "Hide a Book", new_book_path, class: "btn-primary" %>
+  <%= link_to "Submit a Book", new_book_path, class: "btn-primary" %>
 </div>
 
-<% if @books&.any? %>
+<%# ── My pending / rejected submissions ──────────────────────────────────────── %>
+<% if @my_pending.any? || @my_rejected.any? %>
+  <div class="mb-6 space-y-3">
+    <% @my_pending.each do |book| %>
+      <div class="flex items-center justify-between bg-amber-50 border border-amber-100 rounded-xl px-5 py-3">
+        <div class="flex items-center gap-3">
+          <span class="text-lg">⏳</span>
+          <div>
+            <p class="font-semibold text-amber-800 text-sm"><%= book.title %></p>
+            <p class="text-amber-600 text-xs">Submitted <%= book.created_at.strftime("%b %d") %> · Under review</p>
+          </div>
+        </div>
+        <%= link_to "View", book_path(book), class: "text-amber-700 hover:underline text-sm font-medium" %>
+      </div>
+    <% end %>
+    <% @my_rejected.each do |book| %>
+      <div class="flex items-center justify-between bg-red-50 border border-red-100 rounded-xl px-5 py-3">
+        <div class="flex items-center gap-3">
+          <span class="text-lg">❌</span>
+          <div>
+            <p class="font-semibold text-red-800 text-sm"><%= book.title %></p>
+            <p class="text-red-600 text-xs">Not approved · <%= book.rejection_reason&.truncate(60) %></p>
+          </div>
+        </div>
+        <%= link_to "Details", book_path(book), class: "text-red-600 hover:underline text-sm font-medium" %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<%# ── Approved books grid ──────────────────────────────────────────────────── %>
+<% if @books.any? %>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     <% @books.each do |book| %>
       <div class="card hover:shadow-md transition-shadow">
-        <% if book.cover_image.present? %>
-          <img src="<%= book.cover_image %>" alt="<%= book.title %>" class="w-full h-40 object-cover rounded-xl mb-4">
+        <% if book.front_cover.present? %>
+          <img src="<%= book.front_cover %>" class="w-full h-40 object-cover rounded-xl mb-3">
         <% else %>
-          <div class="w-full h-40 bg-slate-100 rounded-xl mb-4 flex items-center justify-center text-4xl">📖</div>
+          <div class="w-full h-28 bg-slate-100 rounded-xl mb-3 flex items-center justify-center text-4xl">📖</div>
         <% end %>
-        <h2 class="font-semibold text-slate-800 leading-snug"><%= book.title %></h2>
-        <p class="text-slate-500 text-sm mt-0.5">by <%= book.author %></p>
-        <div class="flex items-center justify-between mt-4">
-          <span class="badge-pill <%= book.status == 'hidden' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' %>">
-            <%= book.status.capitalize %>
-          </span>
-          <%= link_to "View →", book_path(book), class: "text-indigo-600 hover:text-indigo-800 text-sm font-medium" %>
+        <h2 class="font-semibold text-slate-800 truncate"><%= book.title %></h2>
+        <p class="text-slate-500 text-sm">by <%= book.author %></p>
+        <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
+          <span class="badge-pill <%= book.status == 'hidden' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' %>"><%= book.status.capitalize %></span>
+          <%= link_to "View →", book_path(book), class: "text-indigo-600 hover:underline text-sm font-medium" %>
         </div>
       </div>
     <% end %>
@@ -29,7 +58,7 @@
 <% else %>
   <div class="card text-center py-12">
     <div class="text-5xl mb-3">📚</div>
-    <p class="text-slate-500">No books yet. Be the first to hide one!</p>
-    <%= link_to "Hide a Book", new_book_path, class: "btn-primary inline-block mt-4" %>
+    <p class="text-slate-500">No books in the hunt yet.</p>
+    <%= link_to "Be the first to submit one", new_book_path, class: "btn-primary inline-block mt-4" %>
   </div>
 <% end %>

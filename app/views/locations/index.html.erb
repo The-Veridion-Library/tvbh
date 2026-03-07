@@ -1,32 +1,72 @@
 <div class="flex items-center justify-between mb-6">
   <div>
-    <h1 class="page-title">📍 Locations</h1>
-    <p class="page-subtitle">Places where books have been hidden</p>
+    <h1 class="page-title">📍 Partner Locations</h1>
+    <p class="page-subtitle">Official venues where books can be hidden and found</p>
   </div>
-  <%= link_to "Add Location", new_location_path, class: "btn-primary" %>
+  <%= link_to "Nominate a Location", new_location_path, class: "btn-primary" %>
 </div>
 
-<% if @locations&.any? %>
+<%# ── My nominations ──────────────────────────────────────────────────────── %>
+<% if @my_nominations&.any? %>
+  <div class="card mb-6">
+    <h2 class="text-base font-semibold text-slate-800 mb-3">My Nominations</h2>
+    <div class="space-y-2">
+      <% @my_nominations.each do |loc| %>
+        <div class="flex items-center justify-between text-sm py-2 border-b border-slate-50 last:border-0">
+          <div class="flex items-center gap-3">
+            <span><%= loc.type_emoji %></span>
+            <div>
+              <p class="font-medium text-slate-800"><%= loc.name %></p>
+              <p class="text-slate-400 text-xs"><%= [loc.city, loc.state].compact.join(', ') %></p>
+            </div>
+          </div>
+          <span class="badge-pill <%= case loc.nomination_status
+            when 'partner'      then 'bg-emerald-100 text-emerald-700'
+            when 'under_review' then 'bg-blue-100 text-blue-700'
+            when 'declined'     then 'bg-red-100 text-red-700'
+            else 'bg-amber-100 text-amber-700'
+            end %>">
+            <%= case loc.nomination_status
+              when 'nominated'    then '⏳ Nominated'
+              when 'under_review' then '🔍 Under Review'
+              when 'partner'      then '✅ Partner'
+              when 'declined'     then '❌ Declined'
+              end %>
+          </span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<%# ── Partner locations grid ──────────────────────────────────────────────── %>
+<% if @partner_locations.any? %>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    <% @locations.each do |location| %>
+    <% @partner_locations.each do |location| %>
       <div class="card hover:shadow-md transition-shadow">
         <div class="flex items-start justify-between">
           <div>
             <h2 class="font-semibold text-slate-800"><%= location.name %></h2>
             <span class="badge-pill bg-slate-100 text-slate-600 mt-1"><%= location.location_type&.capitalize %></span>
           </div>
-          <span class="text-2xl"><%= { 'library' => '📚', 'bookstore' => '🏪', 'cafe' => '☕', 'park' => '🌳', 'other' => '📍' }[location.location_type] || '📍' %></span>
+          <span class="text-2xl"><%= location.type_emoji %></span>
         </div>
         <% if location.city.present? %>
           <p class="text-slate-500 text-sm mt-3">📍 <%= [location.city, location.state].compact.join(', ') %></p>
         <% end %>
+        <% if location.website.present? %>
+          <a href="<%= location.website %>" target="_blank" class="text-indigo-600 text-xs hover:underline mt-1 block truncate"><%= location.website %></a>
+        <% end %>
+        <div class="mt-3 pt-3 border-t border-slate-100">
+          <span class="badge-pill bg-emerald-50 text-emerald-700 text-xs">✅ Partner</span>
+        </div>
       </div>
     <% end %>
   </div>
 <% else %>
   <div class="card text-center py-12">
     <div class="text-5xl mb-3">📍</div>
-    <p class="text-slate-500">No locations yet.</p>
-    <%= link_to "Add the first location", new_location_path, class: "btn-primary inline-block mt-4" %>
+    <p class="text-slate-500">No partner locations yet.</p>
+    <%= link_to "Nominate the first one", new_location_path, class: "btn-primary inline-block mt-4" %>
   </div>
 <% end %>

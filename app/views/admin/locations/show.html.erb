@@ -1,0 +1,106 @@
+<div class="flex items-center gap-3 mb-6">
+  <%= link_to "← Locations", admin_locations_path, class: "text-slate-400 hover:text-slate-600 text-sm" %>
+</div>
+
+<div class="grid grid-cols-3 gap-6">
+  <div class="col-span-1 space-y-4">
+    <div class="card">
+      <div class="flex items-start justify-between gap-2 mb-3">
+        <div>
+          <h1 class="text-lg font-bold text-slate-900"><%= @location.name %></h1>
+          <span class="badge-pill bg-slate-100 text-slate-600 mt-1"><%= @location.location_type %></span>
+        </div>
+        <span class="text-3xl"><%= @location.type_emoji %></span>
+      </div>
+
+      <div class="space-y-2 text-sm border-t border-slate-100 pt-3">
+        <div><span class="text-slate-500">Address</span><p class="font-medium text-slate-800 text-xs mt-0.5"><%= @location.full_address %></p></div>
+        <% if @location.website.present? %>
+          <div><span class="text-slate-500">Website</span><a href="<%= @location.website %>" target="_blank" class="text-indigo-600 hover:underline text-xs block truncate"><%= @location.website %></a></div>
+        <% end %>
+        <% if @location.contact_name.present? %>
+          <div><span class="text-slate-500">Contact hint</span><p class="text-slate-700 text-sm"><%= @location.contact_name %></p></div>
+        <% end %>
+        <% if @location.nominator %>
+          <div class="flex justify-between"><span class="text-slate-500">Nominated by</span>
+            <%= link_to @location.nominator.username, admin_user_path(@location.nominator), class: "font-medium text-indigo-600 hover:underline" %>
+          </div>
+        <% end %>
+        <div><span class="text-slate-500">Active labels</span><p class="font-medium"><%= @labels.count %></p></div>
+      </div>
+
+      <% if @location.nomination_notes.present? %>
+        <div class="mt-3 pt-3 border-t border-slate-100">
+          <p class="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Nomination Notes</p>
+          <p class="text-slate-700 text-sm"><%= @location.nomination_notes %></p>
+        </div>
+      <% end %>
+
+      <div class="mt-4 pt-4 border-t border-slate-100">
+        <%= link_to "Edit", edit_admin_location_path(@location), class: "btn-secondary text-sm py-1.5 px-3" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-span-2 space-y-4">
+    <%# Status pipeline %>
+    <div class="card">
+      <h2 class="text-base font-semibold text-slate-800 mb-4">Partnership Status</h2>
+      <div class="flex items-center gap-1 mb-5">
+        <% [['nominated', '⏳', 'Nominated'], ['under_review', '🔍', 'Contacted'], ['partner', '✅', 'Partner'], ['declined', '❌', 'Declined']].each_with_index do |(status, emoji, label), i| %>
+          <div class="flex items-center gap-1">
+            <div class="flex flex-col items-center">
+              <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium
+                  <%= @location.nomination_status == status ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400' %>">
+                <%= emoji %>
+              </div>
+              <p class="text-xs mt-1 <%= @location.nomination_status == status ? 'text-slate-700 font-medium' : 'text-slate-400' %>"><%= label %></p>
+            </div>
+            <% unless i == 3 %>
+              <div class="w-8 h-px bg-slate-200 mb-4"></div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="flex flex-wrap gap-2">
+        <% unless @location.nominated? %>
+          <%= button_to "⏳ Reset to Nominated", set_status_admin_location_path(@location),
+              method: :patch, params: { nomination_status: 'nominated' }, class: "btn-secondary text-sm py-1.5 px-3" %>
+        <% end %>
+        <% unless @location.under_review? %>
+          <%= button_to "🔍 Mark Under Review", set_status_admin_location_path(@location),
+              method: :patch, params: { nomination_status: 'under_review' }, class: "btn-secondary text-sm py-1.5 px-3" %>
+        <% end %>
+        <% unless @location.partner? %>
+          <%= button_to "✅ Make Partner", set_status_admin_location_path(@location),
+              method: :patch, params: { nomination_status: 'partner' }, class: "btn-success text-sm py-1.5 px-3" %>
+        <% end %>
+        <% unless @location.declined? %>
+          <%= button_to "❌ Decline", set_status_admin_location_path(@location),
+              method: :patch, params: { nomination_status: 'declined' }, class: "btn-danger text-sm py-1.5 px-3",
+              data: { confirm: "Decline this location?" } %>
+        <% end %>
+        <%= button_to "🗑 Delete", admin_location_path(@location), method: :delete,
+            class: "btn-danger text-sm py-1.5 px-3", data: { confirm: "Delete this location?" } %>
+      </div>
+    </div>
+
+    <%# Books at this location %>
+    <div class="card p-0 overflow-hidden">
+      <div class="px-5 py-3 border-b border-slate-100 font-semibold text-slate-800">Books here (<%= @labels.count %>)</div>
+      <% if @labels.any? %>
+        <div class="divide-y divide-slate-100">
+          <% @labels.each do |label| %>
+            <div class="px-5 py-3 flex justify-between items-center text-sm">
+              <%= link_to label.book.title, admin_book_path(label.book), class: "font-medium text-slate-800 hover:text-indigo-600" %>
+              <span class="badge-pill <%= label.status == 'placed' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500' %>"><%= label.status %></span>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="px-5 py-4 text-slate-400 text-sm">No books at this location yet.</p>
+      <% end %>
+    </div>
+  </div>
+</div>
