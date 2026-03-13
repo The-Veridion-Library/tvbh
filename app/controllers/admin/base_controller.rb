@@ -9,7 +9,7 @@ class Admin::BaseController < ApplicationController
   # Ensures every ## heading has a blank line before and after it.
   # Uses the exact known heading names so there's no ambiguity.
   AI_HEADINGS = [
-    'Book Lookup', 'Policy Check', 'Condition Assessment', 'Fraud Signals', 'Recommendation',
+    'Book Lookup', 'Policy Check', 'Book Summary', 'Condition Assessment', 'Fraud Signals', 'Recommendation',
     'Venue Research', 'Chain or Independent\\?', 'Existing Book Programs',
     'Address Validation', 'Suitability Assessment', 'Concerns'
   ].freeze
@@ -17,6 +17,7 @@ class Admin::BaseController < ApplicationController
   AI_HEADING_PATTERNS = [
     [/Book\s*Lookup/i, 'Book Lookup'],
     [/Policy\s*Check/i, 'Policy Check'],
+    [/Book\s*Summary/i, 'Book Summary'],
     [/Condition(?:\s*Assessment)?/i, 'Condition Assessment'],
     [/Fraud\s*Signals/i, 'Fraud Signals'],
     [/Recommendation/i, 'Recommendation'],

@@ -85,7 +85,7 @@
   <script>
     // ── Shared AI streaming + markdown rendering ──────────────────────────────
     const AI_HEADINGS = [
-      'Book Lookup', 'Policy Check', 'Condition Assessment', 'Fraud Signals', 'Recommendation',
+      'Book Lookup', 'Policy Check', 'Book Summary', 'Condition Assessment', 'Fraud Signals', 'Recommendation',
       'Venue Research', 'Chain or Independent\\?', 'Existing Book Programs',
       'Address Validation', 'Suitability Assessment', 'Concerns'
     ];
@@ -93,6 +93,7 @@
     const AI_HEADING_PATTERNS = [
       { pattern: /Book\s*Lookup/i, canonical: 'Book Lookup' },
       { pattern: /Policy\s*Check/i, canonical: 'Policy Check' },
+      { pattern: /Book\s*Summary/i, canonical: 'Book Summary' },
       { pattern: /Condition(?:\s*Assessment)?/i, canonical: 'Condition Assessment' },
       { pattern: /Fraud\s*Signals/i, canonical: 'Fraud Signals' },
       { pattern: /Recommendation/i, canonical: 'Recommendation' },
